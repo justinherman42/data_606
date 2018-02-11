@@ -1,0 +1,194 @@
+---
+title: "homework_1_606"
+author: "Justin Herman"
+date: "February 6, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Load in all datasets
+```{r}
+#CREATE LOOP TO READ IN ALL CSV FILES FROM CHAPTER
+setwd("C:/Users/justin/Documents/GitHub/DATA606Spring2018/Data/Data from openintro.org/Ch 1 Exercise Data/")
+getwd()
+temp = list.files(pattern="*.csv")
+for (i in 1:length(temp)) assign(temp[i], read.csv(temp[i]))
+
+```
+
+
+
+## 1.8 
+
+
+#### A What does each row of the data matrix represent?
+
++ Each row represents a participant that was tracked in this survey
+
+#### B How many participants were included in the survey?
+
++ 1691 participants were in this survey
+
+#### C Indicate whether each variable in the study is numerical or categorical. If numerical, identify as continuous or discrete. If categorical, indicate if the variable is ordinal
+
++ See table below
+
+```{r}
+dim(smoking.csv)
+
+table2<-read.table(text="
+Column_name Numerical/Categorical Discrete/Coninuous/Ordinal
+Sex Categorical NA
+Age Numerical Discrete 
+Marital Categorical NA
+Grossincome Categorical Ordinal
+Smoke Categorical NA
+AmtWeekends Numerical Discrete
+AmtWeekdays Numerical Discrete
+
+" ,  header=TRUE, stringsAsFactors=FALSE)
+print (table2)
+```
+
+## 1.9 
+#### A Identify the population of interest and the sample in this study.
+
++ Population is children between the age of 5-15
++ Sample is the 160 children who participated in this experiment
+
+#### B Comment on whether or not the results of the study can be generalized to the population, and if the findings of the study can be used to establish causal relationships.
+
++ As an experimental study, the results of this study can prove casual relationships, assuming the conclusions are proven to not be from statistical chance alone
+
+
+## 1.28
+#### A Based on this study, can we conclude that smoking causes dementia later in life? Explain your reasoning.
++ Smoking may be correlated with dementia later in life, however as this an observational study, we can not draw a causal relationship between smoking and dementia.  We have not controlled for confounding variables and therefore don't know what actually might be causing the increase in dementia
+
+####B A friend of yours who read the article says, “The study shows that sleep disorders lead to bullying in school children.” Is this statement justified? If not, how best can you describe the conclusion that can be drawn from this study?
++ The statement isn't justified.  "lead" implies a causal relationship.  As an observational study, a correct conclusion would be "children with sleeping disorders may be more likely to experience behavioral disorders as well as identify as bullies.  A direct experimentation would be necessary to prove if sleeping disorders have a causal relationship with these variables
+
+##1.36
+####  A What type of study is this?
++ Stratified sampling Experiment
+
+#### B What are the treatment and control groups in this study?
++ Treatment group is the group that exercises 2x a week.  Control group is the group that doesn't exercise
+
+#### C Does this study make use of blocking? If so, what is the blocking variable?
++ The blocking variable used in this study is Age.  Mental health likely varies by age, so this was a wise decision to group people into age based strata
+
+#### D Does this study make use of blinding?
++ This experiment doesn't use blinding, as both the treatment and the control group are knowledgeable of which group they represent in the study.
+
+#### E Comment on whether or not the results of the study can be used to establish a causal relationship between exercise and mental health, and indicate whether or not the conclusions can be generalized to the population at large.
++ As the study doesn't use blinding the results may become biased.  We can control for this by making sure the person conducting the exam is asking questions that will not reveal to him which participant belongs to the control and experimental group. 
++ Perhaps a better study would be to create randomized workout programs, and test the effects of limited exercise versus a more strenuous program.
++ If it can be concluded that the lack of blinding will not effect the tests, than our results can be considered causal, although I would be extremely skeptical of such a causal conclusion 
+
+#### F Suppose you are given the task of determining if this proposed study should get funding. Would you have any reservations about the study proposal?
++ I would likely have reservations about the study, as referenced in the answer above. 
++ Exercise is a very difficult qualitative variable to measure.  Walking can technically be considered exercise.  
++ Our experiment isn't blind, we haven't defined exercise, and we haven't described how long exercise should last.  
+	+ How can we control for all the walking participants will do throughout the day?  
++ That is why i believe a better test would be to assign several groups different levels of workout programs
+	+ Neither group nor those conducting the experiment would know which workout program was more strenuous.  
+	+ If the participants are kept apart, we will have eliminated our blinding problem, and created a more measurable independent variable       
+
+## 1.48
+#### Create a box plot
+
+```{r}
+scores <- c(57, 66, 69, 71, 72, 73, 74, 77, 78, 78, 79, 79, 81, 81, 82, 83, 83, 88, 89, 94)
+boxplot(scores,horizontal = TRUE,axes=FALSE,staplewex=1)
+text(x=fivenum(scores), labels =fivenum(scores), y=1.25)
+```
+
+## 1.50
+#### a=2, b=3, c=1
++ The distribution of a is almost a normal distribution.  It's mean is around 60
++ The distribution of b approaches a uniform or a flat distribution.  The mean is around 50.  There are outliers on both sides which makes sense considering the data is uniformly distributed
++ The distribution of c is rightward skewed.  It's mean is around 1.5.  Many outliers fall outside of the interquartile range
+
+
+## 1.56
+#### A Housing prices in a country where 25% of the houses cost below $350,000, 50% of the houses cost below $450,000, 75% of the houses cost below $1,000,000 and there are a meaningful number of houses that cost more than $6,000,000.
++ I expect the distribution to be right skewed.  The mean would likely not be representative as there are many large outliers, the median would serve to better represent the data.   The IQR would better represent the data than the std deviation
+
+#### B Housing prices in a country where 25% of the houses cost below $300,000, 50% of the houses cost below $600,000, 75% of the houses cost below $900,000 and very few houses that cost more than $1,200,000.
++ I expect this data to appear symmetric.  Therefore the mean and median would be very similar, although depending on the degree of our outliers that are over 1.2 million, our mean may start to become less representative of the data. The same thing applies for the IQR and the Std deviation
+
+#### C Number of alcoholic drinks consumed by college students in a given week. Assume that most of these students don’t drink since they are under 21 years old, and only a few drink excessively.
++ I would expect this data to be rightward skewed.  The mean would be around 0 and the max would likely spread up to a high number.  The median would be more representative of a typical observation in the data.  The IQR would represent the data better than the std deviation
+
+#### D Annual salaries of the employees at a Fortune 500 company where only a few high level executives earn much higher salaries than the all other employees.
++ This company would likely have a close to normally distributed graph.  In this case, I would expect the mean to be very ineffective at measuring the average sample, as the executives likely make substantially more than most employees, so the median should be used with this graph.  the IQR would also be preferred
+
+## 1.70
+
+#### A Based on the mosaic plot, is survival independent of whether or not the patient got a transplant? Explain your reasoning
++ It would appear that those who received the treatment had a median and mean survival rate that was higher. 
++ The interquartile range seems substantially higher for those who received the treatment.  
++ 25% of the treatment group lived longer than 500 days 
++ Nearly the entire control group didn't live 500 days
+
+#### B What do the box plots below suggest about the efficacy (effectiveness) of the heart transplant treatment.
+
++ It would appear that heart transplant is a very effective method to extend life
+
+#### C What proportion of patients in the treatment group and what proportion of patients in the control group died?
+  
+```{r}
+#CREATE SUBSETS OF CONTROL AND TREATMENT  
+library(openintro); data(heartTr)
+control <- subset(heartTr,heartTr$transplant=="control")
+treatment <- subset(heartTr,heartTr$transplant=="treatment")
+
+# CREATE FREQ TABLE FOR SURVIVAL RATES BY CONTROL AND TREATMENT
+treatment_survival_table <- table(treatment$survived)
+control_survival_table <- table(control$survived)
+control_survived <- control_survival_table[1]/(control_survival_table[1]+control_survival_table[2]) *100
+treatment_survived <- treatment_survival_table[1]/(treatment_survival_table[1]+treatment_survival_table[2]) *100
+print( paste("In the control group",control_survived,"% survived"))
+print( paste("In the treatment group",treatment_survived,"% survived"))
+```
+#### D 
++ I. Being tested is the effect of an experimental heart transplant on survival rates.  The Null hypothesis would be that the treatment(heart transplant) has no effect on survival rates.  To reject the Null we would need to see either an increase or a decrease in survival rates of the treatment group that has a 95% likelihood of not occurring from chance  
+
+```{r}
+# FIND TOTAL (ALIVE,DEAD,CONTROL,TREATMENT,FREQ WITHIN TREATMENT/CONTROL THAT ARE ALIVE/DEAD)
+alive <- subset(heartTr,heartTr$survived=="alive")
+dim(alive)
+dead <- subset(heartTr,heartTr$survived=="dead")
+dim(dead)
+dim(control)
+dim(treatment)
+control_survival_table
+treatment_survival_table
+
+```
+
+#### ii   Fill in the Blanks
+
++ We write alive on 28 cards
++ We write dead on 75 cards
++ One group of size 69 representing treatment
++ One group of size 34 representing control 
++ Centered at 0
++ Simulated difference are at least 24/69-4/34 =.23
+		
+		
+```{r}
+24/69-4/34
+```
+
+		
+#### iii What do the simulation results shown below suggest about the effectiveness of the transplant program?
++ It looks like at least 98% of our random samples have simulated differences less than our treatments group
+	+ Therefore we would reject the NUll hypothesis, and claim that the treatment group experienced a causal effect from the treatment  
+  
+  
+
