@@ -1,0 +1,329 @@
+---
+title: "Introduction to data"
+output:
+  html_document:
+    theme: cerulean
+    highlight: pygments
+    css: ./lab.css
+---
+
+
+```{r load-data, eval=TRUE}
+source("more/cdc.R")
+```
+
+
+```{r names, eval=TRUE}
+names(cdc)
+```
+
+This returns the names `genhlth`, `exerany`, `hlthplan`, `smoke100`, `height`, 
+`weight`, `wtdesire`, `age`, and `gender`. Each one of these variables 
+corresponds to a question that was asked in the survey.  For example, for 
+`genhlth`, respondents were asked to evaluate their general health, responding
+either excellent, very good, good, fair or poor. The `exerany` variable 
+indicates whether the respondent exercised in the past month (1) or did not (0).
+Likewise, `hlthplan` indicates whether the respondent had some form of health 
+coverage (1) or did not (0). The `smoke100` variable indicates whether the 
+respondent had smoked at least 100 cigarettes in her lifetime. The other 
+variables record the respondent's `height` in inches, `weight` in pounds as well
+as their desired weight, `wtdesire`, `age` in years, and `gender`.
+
+1.  How many cases are there in this data set?  How many variables?  For each 
+    variable, identify its data type (e.g. categorical, discrete).
+
+## Return dimensions(rows and columns), use the str command, define each column's data type
+
+```{r head, eval=TRUE}
+dim(cdc)
+str(cdc)
+```
+
+
+```{r, echo=FALSE}
+table_3<-read.table(text="
+Column_name Numerical/Categorical Discrete/Coninuous/Ordinal
+exerany Categorical NA
+hlthplan Categorical NA 
+smoke100 Categorical NA
+height Numerical Discrete
+weight  Numerical Discrete
+wtdesire Numerical Discrete
+age Numerical Discrete
+gender categorical NA
+wdiff Numerical Discrete
+" ,  header=TRUE, stringsAsFactors=FALSE)
+print (table_3)
+
+```
+
+
+
+2.  Create a numerical summary for `height` and `age`, and compute the 
+    interquartile range for each. Compute the relative frequency distribution for
+    `gender` and `exerany`. How many males are in the sample? What proportion of
+    the sample reports being in excellent health?
+
+
+
+## Create an interquartile function and print out several frequency distribution functions
+
+```{r table-smoke-gender, eval=TRUE}
+summary(cdc$height)
+summary(cdc$age)
+
+#Create IQR FUNCTION
+quartile_range <- function(x){sorted <- sort(x)
+    lower=median(sorted[1:10000])
+    upper=median(sorted[10001:20000])
+    inter= upper-lower
+    return (c("1st_quart"=lower,"3rd_quart"=upper,"inter_quart"=inter))
+
+}
+
+#CREATE FREQUENCY TABLES
+exercise_freq_dist <- table(cdc$exerany)/20000*100
+gender_freq_dist <-   table(cdc$gender)/20000*100
+healt_freq_dist <-    table(cdc$genhlth)/20000*100
+males_in_sample <- gender_freq_dist[1]*200
+great_health <- healt_freq_dist[1] *200
+
+# USE PASTE FUNCTION FOR PRINT STATEMENTS
+heights <- (paste(c("height_1st_quart is","height_3rd_quart is","height_inter_quartile range is"),c(quartile_range(cdc$height))))
+ages <- (paste(c("age_1st_quart is","age_3rd_quart is","age_inter_quartile range is"),c(quartile_range(cdc$age))))
+genders <- paste(c("percent males is","percent females is"),c(gender_freq_dist))
+exercised <-paste(c("percent whom didn't exercise","percent whom did exercise"),c(exercise_freq_dist)) 
+sampled_males <- paste("number of males",males_in_sample)
+excellent_reported_health <- paste("number of respondents reporting excellent health",great_health)
+
+
+print (c(heights,ages,genders,exercised,sampled_males,excellent_reported_health))
+```
+
+```{r mosaic-smoke-gender, eval=TRUE}
+mosaicplot(table(cdc$gender,cdc$smoke100))
+```
+
++  Males are more Likely to smoke than females.  
+
+
+
+3.  Create a new object called `under23_and_smoke` that contains all observations 
+    of respondents under the age of 23 that have smoked 100 cigarettes in their 
+    lifetime. Write the command you used to create the new object as the answer
+    to this exercise.
+    
+## Subset of young smokers and a frequency distribution for that young smoker subset
++ How do smokers over 55 compare?
+```{r}
+#CREATE SUBSET DATA AND PASTE FOR PRINT
+under23_and_smoke <- subset(cdc, age<23,smoke100)
+younger_smokers <- paste(c("distribution of  people under 23 that don't smoke ","distribution of people under 23 that do smoke"),c(table(under23_and_smoke)/dim(under23_and_smoke)[1]))
+over_55_smokers <- subset(cdc, age>55,smoke100)
+older_smokers <- paste(c("distribution of  people over 55 that don't smoke ","distribution of  people over 55 that do smoke"),c(table(over_55_smokers)/dim(over_55_smokers)[1]))
+
+
+print(c(younger_smokers, older_smokers))
+```
+
++ Only 2 of every 5 young Americans smoke where as over 55% of adults over 55 smoke  
+
+## Quantitative data
+
+
+```{r boxplot-height, eval=TRUE}
+boxplot(cdc$height)
+```
+
+You can compare the locations of the components of the box by examining the 
+summary statistics.
+
+```{r summary-height, eval=TRUE}
+summary(cdc$height)
+```
+
+
+
+The notation here is new. The `~` character can be read *versus* or 
+*as a function of*. So we're asking R to give us a box plots of heights where 
+the groups are defined by gender. 
+
+Next let's consider a new variable that doesn't show up directly in this data 
+set: Body Mass Index (BMI) 
+([http://en.wikipedia.org/wiki/Body_mass_index](http://en.wikipedia.org/wiki/Body_mass_index)). 
+BMI is a weight to height ratio and can be calculated as:
+
+\[ BMI = \frac{weight~(lb)}{height~(in)^2} * 703 \]
+
+703 is the approximate conversion factor to change units from metric (meters and 
+kilograms) to imperial (inches and pounds).
+
+The following two lines first make a new object called `bmi` and then creates 
+box plots of these values, defining groups by the variable `cdc$genhlth`.
+
+```{r boxplot-bmi, eval=TRUE}
+bmi <- (cdc$weight / cdc$height^2) * 703
+boxplot(bmi ~ cdc$genhlth)
+hist(bmi)
+
+```
+
+
+
+4.  What does this box plot show? Pick another categorical variable from the 
+    data set and see how it relates to BMI. List the variable you chose, why you
+    might think it would have a relationship to BMI,  and indicate what the 
+    figure seems to suggest. 
+    
++ This shows that lower bmi is indicative of stronger health outcomes.  
+    + Excellent health outcomes fall in a much lower and narrower bmi range.  
+    + It appears positive health outcomes and bmi are negatively correlated
++ the data does appear to have alot of outliers, however it is a large sample. 
+
+## Boxplot of bmi categorized by exercise column
++ Observations from box plot plotted below
+    
+    + I would assume people who exercise have lower BMI.  
+    + It appears the IQR of exercisers BMI is lower as well   
+    + There appears to be a decent amount of repondents outside the interquartile range in both exercisors and non exercisors
+```{r}
+boxplot(bmi ~ cdc$exerany)
+summary(cdc$exerany==1)
+```
+
+
+
+
+
+```{r hist-bmi, eval=TRUE}
+hist(bmi, breaks = 50)
+```
+
+
+## On Your Own
+
+```{r}
+library(stringr)
+library(XML)
+library(maps)
+library(data.table)
+library(dplyr)
+library(psych)
+library(sjmisc)
+library(ggplot2) 
+```
+
+5. Make a scatter plot of weight versus desired weight. Describe the 
+    relationship between these two variables.
+    
+```{r}
+library(ggplot2)
+ggplot(cdc, aes(x = cdc$weight, y = cdc$wtdesire)) +
+    theme_bw() +
+    geom_point()
+```
+
++ There is a small positive correlation between actual weight and expected weight.  
++ But it appears that this correlation changes depending on body weight.   
+    + At around 100 pounds, most people want to be heavier.  
+    + At around 200 pounds most people want to be thinner.  
++ There are some outliers that likely need to be removed as noone really wants to be over 600 pounds.  
+    + These people are either providing misleading information or there was some clerical error collecting the data.   
+
+## Eliminate outlier under the assumption that noone wants to weigh over 500 pounds
++ getting rid of the outlier also makes for a much clearer graph of the relationship between our variables 
+
+6. Let's consider a new variable: the difference between desired weight 
+    (`wtdesire`) and current weight (`weight`). Create this new variable by 
+    subtracting the two columns in the data frame and assigning them to a new 
+    object called `wdiff`.
+```{r}
+#CREATE WDIFF COLUMN AND PRINT PLOT OF DATA WITHOUT OUTLIER
+cdc$wdiff <-cdc$weight-cdc$wtdesire
+sub_set_cdc <- subset(cdc,cdc$wdiff> -300)
+library(ggplot2)
+ggplot(sub_set_cdc, aes(x = sub_set_cdc$weight, y = sub_set_cdc$wtdesire)) +
+    theme_bw() +
+    geom_point()
+
+```
+
+7.  What type of data is `wdiff`? If an observation `wdiff` is 0, what does 
+    this mean about the person's weight and desired weight. What if `wdiff` is 
+    positive or negative?
+    
++ Wdiff is integer column.  It represents discrete Numerical data
++ When 0 it means a person desired weight is equal to their actual weight
++ When positive it means the person wants to weigh less than they weigh
++ When negative it means the person wants to weigh more than they weigh
+
+## Some visual display and summary of our new Wdiff column
+```{r}
+
+hist(sub_set_cdc$wdiff,breaks=41)
+summary(sub_set_cdc$wdiff)
+summary(cdc$wdiff)
+
+d <- density(cdc$wdiff)
+plot(d, main="Kernel Density of desired weight")
+polygon(d, col="red", border="blue")
+
+```
+
+8.    Describe the distribution of `wdiff` in terms of its center, shape, and 
+    spread, including any plots you use. What does this tell us about how people 
+    feel about their current weight?
+
++ Our histogram is rightward skewed with an interquartilerange of 21, and a spread of over 410. The range of the original data, with outliers, would be even larger at around 800.  
++ The rightward skew implies that there are more people that want to lose larger amounts of weight then want to gain larger amounts of weight
++ Most people,50% of our data set, want to remain the same weight or lose up to 21 pounds.
++ Only 25% of our data set wants to gain any weight at all
+
+
+9.   Using numerical summaries and a side-by-side box plot, determine if men tend
+    to view their weight differently than women.
+
+## WDIFF plotted side by side by gender
++ Red= Men , Blue= Women
+```{r}
+# SUBSET WDIFF COLUMN BY GENDER, PLOT GENDERS SIDE BY SIDE
+sub_set_cdc_women <-subset(sub_set_cdc,sub_set_cdc$gender=="f") 
+sub_set_cdc_men <-subset(sub_set_cdc,sub_set_cdc$gender=="m") 
+summary(sub_set_cdc_women$wdiff)
+summary(sub_set_cdc_men$wdiff)
+gender_df <- rbind(data.frame(fill="blue", obs=sub_set_cdc_women$wdiff),
+            data.frame(fill="red", obs=sub_set_cdc_men$wdiff))
+ggplot(gender_df, aes(x=obs, fill=fill)) +
+  geom_histogram(binwidth=10, colour="black", position="dodge") +
+  scale_fill_identity()
+```
+
+
+
++ While some men think they should gain weight, fewer women feel as though they should gain weight
++ A large amount of men and women think their weight is fine, although more men are comfortable with their current weight  
++ In almost all ranges, more women feel like they should lose weight then men feel like they should lose weight
+
+10. -   Now it's time to get creative. Find the mean and standard deviation of 
+    `weight` and determine what proportion of the weights are within one 
+    standard deviation of the mean.
+```{r}
+# GET MEAN, GET STD DEVIATION, CREATE A SUBSET WITHIN 1 STD DEVIATION IN EACH DIRECTION
+mean_cdc <- mean(sub_set_cdc$weight)
+sd_cdc <- sd(sub_set_cdc$weight)
+stand_dev_upper <-mean_cdc+sd_cdc
+stand_dev_lower <- mean_cdc-sd_cdc 
+cdc_data_within_sd <- subset(sub_set_cdc,sub_set_cdc$weight<stand_dev_upper &sub_set_cdc$weight>stand_dev_lower )
+proportion_within_sd <- dim(cdc_data_within_sd)[1]/20000
+print(paste(" the proportion of weights that fall within one standard deviation is",proportion_within_sd))
+```
+
+
+
+
+<div id="license">
+This is a product of OpenIntro that is released under a 
+[Creative Commons Attribution-ShareAlike 3.0 Unported](http://creativecommons.org/licenses/by-sa/3.0). 
+This lab was adapted for OpenIntro by Andrew Bray and Mine &Ccedil;etinkaya-Rundel 
+from a lab written by Mark Hansen of UCLA Statistics.
+</div>
